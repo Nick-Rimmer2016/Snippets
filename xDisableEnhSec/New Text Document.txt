@@ -1,0 +1,6 @@
+xDisableIEEnhancedSecurity DisableEnh
+        {
+           Name = "DisableEnhSec" 
+           Ensure = "Present"
+        }
+    Import-DScresource -Modulename xDisableEnhSec
