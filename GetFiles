@@ -1,0 +1,1 @@
+Get-ChildItem e:\import*\* -filter * | foreach {dir $_.fullname | foreach {ren $_.fullname $((split-path (split-path $_.fullname) -leaf).TrimStart("Import_") + $_.name)}}
