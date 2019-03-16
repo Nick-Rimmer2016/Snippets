@@ -5,6 +5,7 @@
    This is a bug that exists in Windows Server 2012 R2, where after a JEA session with the virtual account setting 
    switch on, the session does not exit cleanly and leave the virtual account in logon as a service.
    https://github.com/PowerShell/PowerShell/issues/5296 (This has been fixed in 2016 & 2019)
+   https://gallery.technet.microsoft.com/scriptcenter/Grant-Revoke-Query-user-26e259b0
 .EXAMPLE
    Remove-TempJEAAdminAccounts -backup c:\backups  (Only specify drive and folder here), the file will be assigned the name 
    SeServiceLogonRight-backup.txt
