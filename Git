@@ -1,0 +1,16 @@
+git init
+
+git remote add origin https://try.gogs.io/nickr/TEST.git
+git pull origin master
+
+git checkout <Project Name>
+git add <folder name>/
+cd <folder name>
+git add <filename>
+git commit -m "Disk Management"
+
+git push origin <Project Name>
+Create Pull request
+
+# Delete remote branch after Pull Request accepted
+git push origin <Project Name> --delete
