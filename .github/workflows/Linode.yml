@@ -1,0 +1,17 @@
+name: Create Linode
+
+on:
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.2
+
+      - name: Run bash script
+        shell: bash
+        run: |
+          chmod +x ./linode/linode.sh
+          param1='GitHub'
+          ./linode/linode.sh "${param1}"
