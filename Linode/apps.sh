@@ -14,3 +14,6 @@ sudo dpkg -i packages-microsoft-prod.deb
 sudo apt-get update
 # Install PowerShell
 sudo apt-get install -y powershell
+
+# Python
+sudo apt install python3
