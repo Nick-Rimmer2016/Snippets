@@ -1,6 +1,6 @@
-name: Create Linode
+name: Create Linode Linux VM
 
-on:
+on: push
 
 jobs:
   job1:
@@ -13,5 +13,7 @@ jobs:
         shell: bash
         run: |
           chmod +x ./linode/linode.sh
-          param1='GitHub'
-          ./linode/linode.sh "${param1}"
+          ./linode/linode.sh $TOKEN $PASS
+        env:
+          TOKEN:  '${{ TOKEN }}'
+          PASS:   '${{ PASS }}'
