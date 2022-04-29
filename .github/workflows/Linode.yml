@@ -3,8 +3,8 @@ name: Create Linode Linux VM
 on: push
 
 env:
-          TOKEN:  '${{ TOKEN }}'
-          PASS:   '${{ PASS }}'
+  TOKEN:  '${{ TOKEN }}'
+  PASS:   '${{ PASS }}'
 
 jobs:
   job1:
