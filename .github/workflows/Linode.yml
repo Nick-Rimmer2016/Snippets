@@ -16,5 +16,6 @@ jobs:
       - name: Run bash script
         shell: bash
         run: |
+          pwd
           chmod +x "${GITHUB_WORKSPACE}/.github/Linode/linode.sh"
-          "${GITHUB_WORKSPACE}/.github/.github/Linode.sh $TOKEN $PASS"
+          "${GITHUB_WORKSPACE}/.github/Linode/Linode.sh $TOKEN $PASS"
