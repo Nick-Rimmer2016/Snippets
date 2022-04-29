@@ -1,10 +1,10 @@
-name: Create Linode Linux VM
+name: Linode
 
 on: push
 
 env:
-  TOKEN:  '${{ TOKEN }}'
-  PASS:   '${{ PASS }}'
+  TOKEN:  ${{ TOKEN }}
+  PASS:   ${{ PASS }}
 
 jobs:
   job1:
@@ -17,4 +17,4 @@ jobs:
         shell: bash
         run: |
           chmod +x ./linode/linode.sh
-          ./linode/linode.sh $TOKEN $PASS        
+          ./linode/linode.sh $TOKEN $PASS  
