@@ -17,5 +17,5 @@ jobs:
         shell: bash
         run: |
           pwd
-          chmod +x "${GITHUB_WORKSPACE}/.github/Linode/linode.sh"
-          "${GITHUB_WORKSPACE}/.github/Linode/Linode.sh $TOKEN $PASS"
+          chmod +x "${GITHUB_WORKSPACE}/Linode/linode.sh"
+          "${GITHUB_WORKSPACE}/Linode/Linode.sh $TOKEN $PASS"
