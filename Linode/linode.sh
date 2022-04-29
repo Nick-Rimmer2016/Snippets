@@ -21,4 +21,4 @@ curl -k -H "Content-Type: application/json" \
     https://api.linode.com/v4/linode/instances 
 
     curl -k -H "Authorization: Bearer $TOKEN" \
-    https://api.linode.com/v4/linode/instances
+    https://api.linode.com/v4/linode/instances > /dev/null
