@@ -19,4 +19,4 @@ jobs:
           pwd
           cd Linode 
           chmod +x ./linode.sh
-          ./linode.sh $TOKEN $PASS"
+          ./linode.sh $TOKEN $PASS
