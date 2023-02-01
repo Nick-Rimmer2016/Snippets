@@ -1,0 +1,16 @@
+- name: Deploy security patches
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update security packages
+      shell: yum update --security
+      register: result
+
+    - name: Display update results
+      debug:
+        var: result.stdout_lines
+
+    - name: Report host as patched
+      when: result.changed == True
+      debug:
+        msg: "Host {{ inventory_hostname }} has been patched successfully."
