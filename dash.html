@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Dashboard</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			background-color: #f2f2f2;
+		}
+
+		.container {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-around;
+			align-items: center;
+			margin-top: 50px;
+		}
+
+		.image {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin: 10px;
+			padding: 10px;
+			background-color: #fff;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+		}
+
+		.image img {
+			width: 200px;
+			height: auto;
+			margin-bottom: 10px;
+		}
+
+		.traffic-light {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			margin: 10px;
+			padding: 10px;
+			background-color: #fff;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+		}
+
+		.traffic-light label {
+			margin-right: 10px;
+		}
+
+		.traffic-light span {
+			display: inline-block;
+			width: 20px;
+			height: 20px;
+			margin-right: 5px;
+			border-radius: 50%;
+		}
+
+		.red {
+			background-color: #ff0000;
+		}
+
+		.yellow {
+			background-color: #ffff00;
+		}
+
+		.green {
+			background-color: #00ff00;
+		}
+	</style>
+</head>
+<body>
+	<h2>BOSH Application Status</h2>
+	<div class="container">
+		<div class="image">
+			<img src="image1.png" alt="Image 1">
+			<p>Image 1</p>
+		</div>
+		<div class="image">
+			<img src="image2.png" alt="Image 2">
+			<p>Image 2</p>
+		</div>
+		<div class="traffic-light">
+			<label>System Status:</label>
+			<span class="red"></span>
+			<p>System Down</p>
+		</div>
+	</div>
+</body>
+</html>
