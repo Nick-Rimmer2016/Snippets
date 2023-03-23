@@ -1,18 +1,23 @@
-$workspaceId = "<Workspace ID>"
-$proxyServer = "<Proxy Server>"
+# Create a new folder called "test"
+New-Item -ItemType Directory -Path C:\ -Name test
 
-# Download the MMA setup file
-$mmaDownloadUrl = "https://download.microsoft.com/download/9/1/D/91D3B4B4-4E1D-4DD4-971D-2978B965B154/MicrosoftMonitoringAgent.msi"
-$mmaInstaller = "MicrosoftMonitoringAgent.msi"
-Invoke-WebRequest -Uri $mmaDownloadUrl -OutFile $mmaInstaller
+# Remove inherited permissions
+$Acl = Get-Acl "C:\test"
+$Acl.SetAccessRuleProtection($true, $false)
+Set-Acl "C:\test" $Acl
 
-# Install the MMA agent
-$arguments = "/i $mmaInstaller /qn ADD_OPINSIGHTS_WORKSPACE=1 OPINSIGHTS_WORKSPACE_ID=$workspaceId OPINSIGHTS_WORKSPACE_KEY=$workspaceKey"
-if ($proxyServer -ne "") {
-    $arguments += " UseProxy=1 ProxyHostName=$proxyServer"
-}
+# Add permissions for specific users and local administrators group
+$User = New-Object System.Security.Principal.NTAccount("DOMAIN\username")
+$Rights = [System.Security.AccessControl.FileSystemRights]::FullControl
+$InheritanceFlag = [System.Security.AccessControl.InheritanceFlags]::None
+$PropagationFlag = [System.Security.AccessControl.PropagationFlags]::None
+$AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule($User, $Rights, $InheritanceFlag, $PropagationFlag, "Allow")
+$Acl = Get-Acl "C:\test"
+$Acl.SetAccessRule($AccessRule)
+$Admins = New-Object System.Security.Principal.NTAccount("BUILTIN\Administrators")
+$Ar = New-Object System.Security.AccessControl.FileSystemAccessRule($Admins, "FullControl", "Allow")
+$Acl.SetAccessRule($Ar)
+Set-Acl "C:\test" $Acl
 
-Start-Process "msiexec" -ArgumentList $arguments -Wait
-
-# Clean up the setup file
-Remove-Item $mmaInstaller
+# Share the folder with the name "test"
+New-SmbShare -Name test -Path C:\test -FullAccess "DOMAIN\username","BUILTIN\Administrators"
