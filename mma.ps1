@@ -1,23 +1,38 @@
-# Create a new folder called "test"
-New-Item -ItemType Directory -Path C:\ -Name test
+# Create a listener on port 1522
+$listener1 = New-Object System.Net.Sockets.TcpListener([IPAddress]::Any, 1522)
+$listener1.Start()
 
-# Remove inherited permissions
-$Acl = Get-Acl "C:\test"
-$Acl.SetAccessRuleProtection($true, $false)
-Set-Acl "C:\test" $Acl
+# Create a listener on port 1523
+$listener2 = New-Object System.Net.Sockets.TcpListener([IPAddress]::Any, 1523)
+$listener2.Start()
 
-# Add permissions for specific users and local administrators group
-$User = New-Object System.Security.Principal.NTAccount("DOMAIN\username")
-$Rights = [System.Security.AccessControl.FileSystemRights]::FullControl
-$InheritanceFlag = [System.Security.AccessControl.InheritanceFlags]::None
-$PropagationFlag = [System.Security.AccessControl.PropagationFlags]::None
-$AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule($User, $Rights, $InheritanceFlag, $PropagationFlag, "Allow")
-$Acl = Get-Acl "C:\test"
-$Acl.SetAccessRule($AccessRule)
-$Admins = New-Object System.Security.Principal.NTAccount("BUILTIN\Administrators")
-$Ar = New-Object System.Security.AccessControl.FileSystemAccessRule($Admins, "FullControl", "Allow")
-$Acl.SetAccessRule($Ar)
-Set-Acl "C:\test" $Acl
+# Create a listener on port 22
+$listener3 = New-Object System.Net.Sockets.TcpListener([IPAddress]::Any, 22)
+$listener3.Start()
 
-# Share the folder with the name "test"
-New-SmbShare -Name test -Path C:\test -FullAccess "DOMAIN\username","BUILTIN\Administrators"
+# Keep the script running to continue listening
+while ($true) {
+    # Check if there is a client waiting to connect to listener1
+    if ($listener1.Pending()) {
+        # Accept the client connection and handle it
+        $client1 = $listener1.AcceptTcpClient()
+        # Handle the client connection here
+    }
+
+    # Check if there is a client waiting to connect to listener2
+    if ($listener2.Pending()) {
+        # Accept the client connection and handle it
+        $client2 = $listener2.AcceptTcpClient()
+        # Handle the client connection here
+    }
+
+    # Check if there is a client waiting to connect to listener3
+    if ($listener3.Pending()) {
+        # Accept the client connection and handle it
+        $client3 = $listener3.AcceptTcpClient()
+        # Handle the client connection here
+    }
+
+    # Add a delay to avoid using too much CPU
+    Start-Sleep -Milliseconds 100
+}
