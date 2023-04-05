@@ -1,19 +1,30 @@
+# Load the YAML file containing the rules
+$rules = Get-Content -Path "C:\Path\To\Rules.yaml" -Raw | ConvertFrom-Yaml
+
 # Import the CSV file
-$servers = Import-Csv -Path "C:\Path\To\File.csv"
+$data = Import-Csv -Path "C:\Path\To\File.csv"
 
-# Load the YAML file
-$config = Get-Content -Path "C:\Path\To\Config.yaml" -Raw | ConvertFrom-Yaml
-
-# Define the rule engine
-$ruleEngine = @{
-    "JK*" = $config.JKValue
-    "Server2" = $config.Server2Value
-    # Add more rules here as needed
+# Loop through each row in the CSV file
+foreach ($row in $data) {
+    # Check if the "Status" column contains the word "Running"
+    if ($row.Status -like $rules[0].Condition) {
+        # Apply the "Restart" action
+        Write-Output "Restarting server $($row.ServerName)"
+    }
+    # Check if the "Status" column contains the word "Stopped"
+    elseif ($row.Status -like $rules[1].Condition) {
+        # Apply the "Start" action
+        Write-Output "Starting server $($row.ServerName)"
+    }
+    # Check if the "ServerName" column contains the word "Server1"
+    elseif ($row.ServerName -like $rules[2].Condition) {
+        # Apply the "Notify Admin" action
+        Write-Output "Notifying admin about server $($row.ServerName)"
+    }
+    # No rule matched
+    else {
+        Write-Output "No rule matched for server $($row.ServerName)"
+    }
 }
 
-# Apply the rule engine to extract lines from the CSV file
-$filteredServers = $servers | Where-Object { $ruleEngine.ContainsKey($_.ServerName) }
-
-# Output the filtered servers
-$filteredServers
 
