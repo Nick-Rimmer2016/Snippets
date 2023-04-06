@@ -1,30 +1,18 @@
-# Load the YAML file containing the rules
-$rules = Get-Content -Path "C:\Path\To\Rules.yaml" -Raw | ConvertFrom-Yaml
+# Step 1: Parse the YAML file
+$rules = Get-Content -Path "rules.yaml" -Raw | ConvertFrom-Yaml
 
-# Import the CSV file
-$data = Import-Csv -Path "C:\Path\To\File.csv"
+# Step 2: Read the CSV file
+$data = Import-Csv -Path "data.csv"
 
-# Loop through each row in the CSV file
+# Step 3: Apply the rules to each row of data
 foreach ($row in $data) {
-    # Check if the "Status" column contains the word "Running"
-    if ($row.Status -like $rules[0].Condition) {
-        # Apply the "Restart" action
-        Write-Output "Restarting server $($row.ServerName)"
-    }
-    # Check if the "Status" column contains the word "Stopped"
-    elseif ($row.Status -like $rules[1].Condition) {
-        # Apply the "Start" action
-        Write-Output "Starting server $($row.ServerName)"
-    }
-    # Check if the "ServerName" column contains the word "Server1"
-    elseif ($row.ServerName -like $rules[2].Condition) {
-        # Apply the "Notify Admin" action
-        Write-Output "Notifying admin about server $($row.ServerName)"
-    }
-    # No rule matched
-    else {
-        Write-Output "No rule matched for server $($row.ServerName)"
+    # Convert the row to a string for searching
+    $rowString = $row | Out-String
+    if ($rowString.Contains($rules.condition)) {
+        Write-Host $rules.action
+        # Or perform some action based on the rule here
     }
 }
 
-
+# Step 4: Save the results
+$data | Export-Csv -Path "results.csv" -NoTypeInformation
