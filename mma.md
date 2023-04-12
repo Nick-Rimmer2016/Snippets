@@ -32,6 +32,7 @@ decision engine:
   actions:
     action1: "BM has appeared"
     action2: "CM has appeared"
+ ```
     
  The rules section should contain one or more rules, where the key is the name of the rule and the value is the value to search for in the CSV file.
 
