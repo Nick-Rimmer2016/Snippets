@@ -1,0 +1,14 @@
+To set up sticky sessions in WebLogic, follow these steps:
+
+1. Open the WebLogic Server Administration Console.
+2. Navigate to the cluster that you want to configure sticky sessions for.
+3. Click on the "Protocols" tab.
+4. Under the "HTTP" section, click on the "HTTP Session Persistence" link.
+5. Select "Cookie-based" from the "Session Persistence Type" drop-down menu.
+6. Enter a name for the cookie in the "Cookie Name" field (e.g. JSESSIONID).
+7. Set the "Cookie Domain" to match the domain of your application (e.g. mydomain.com).
+8. Set the "Cookie Path" to match the path of your application (e.g. /myapp).
+9. Choose the "Enable Load Balancing Affinity" option.
+10. Click on the "Apply" button to save the changes.
+
+With sticky sessions configured, when a client connects to the cluster, WebLogic will create a session and assign a unique identifier to it. This identifier will be stored in a cookie and sent back to the client with each subsequent request. When the client sends a request to the cluster, the load balancer will use the cookie to route the request to the same server that handled the initial request, ensuring that the client maintains its session state on the same server.
