@@ -1,0 +1,14 @@
+query {
+  virtualMachines(filter: {
+    name: "my-virtual-machine"
+  }) {
+    id
+    name
+    vulnerabilities {
+      name
+      severity
+      status
+      remediationSteps
+    }
+  }
+}
