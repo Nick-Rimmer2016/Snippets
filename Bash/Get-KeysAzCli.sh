@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Set variables for the key vault
+# Set variables for the key vault name and resource group name
 keyVaultName="myKeyVault"
 
 # Authenticate to Azure using the Azure CLI
