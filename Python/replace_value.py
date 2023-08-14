@@ -22,8 +22,19 @@ with open('input.txt', 'r') as file:
 replace_value(108, "c:\\updated_test", data_dict)
 replace_value(112, "e:\\new_drive", data_dict)
 
+# Read the original file again and update the values
+with open('input.txt', 'r') as file:
+    lines = file.readlines()
+
 with open('output.txt', 'w') as file:
-    for key, value in data_dict.items():
-        file.write(f"{key}\t{value}\n")
+    for line in lines:
+        parts = line.strip().split()
+        if len(parts) == 2:
+            key = int(parts[0])
+            if key in data_dict:
+                value = data_dict[key]
+                file.write(f"{key}\t{value}\n")
+            else:
+                file.write(line)
 
 print("Updated values written to 'output.txt'")
