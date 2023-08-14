@@ -10,31 +10,22 @@ data_dict = {}
 
 with open('input.txt', 'r') as file:
     for line in file:
-        parts = line.strip().split()
-        if len(parts) == 2:
-            try:
-                key = int(parts[0])
-                value = parts[1]
-                data_dict[key] = value
-            except ValueError:
-                print(f"Ignored invalid line: {line}")
+        line = line.strip()
+        if line:
+            parts = line.split(None, 1)
+            if len(parts) == 2:
+                try:
+                    key = int(parts[0])
+                    value = parts[1]
+                    data_dict[key] = value
+                except ValueError:
+                    print(f"Ignored invalid line: {line}")
 
 replace_value(108, "c:\\updated_test", data_dict)
 replace_value(112, "e:\\new_drive", data_dict)
 
-# Read the original file again and update the values
-with open('input.txt', 'r') as file:
-    lines = file.readlines()
-
 with open('output.txt', 'w') as file:
-    for line in lines:
-        parts = line.strip().split()
-        if len(parts) == 2:
-            key = int(parts[0])
-            if key in data_dict:
-                value = data_dict[key]
-                file.write(f"{key}\t{value}\n")
-            else:
-                file.write(line)
+    for key, value in data_dict.items():
+        file.write(f"{key}\t{value}\n")
 
 print("Updated values written to 'output.txt'")
