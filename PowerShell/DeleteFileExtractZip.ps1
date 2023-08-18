@@ -1,11 +1,15 @@
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-
 $zipFilePath = "path_to_your.zip"
 $password = "your_password"
 $fileToDelete = "file_to_delete.txt"
 
-# Open the ZIP file with the password
-$archive = [System.IO.Compression.ZipFile]::OpenRead($zipFilePath, [System.IO.Compression.ZipArchiveMode]::Update, [System.Text.Encoding]::UTF8, $password)
+# Load the necessary assembly for ZIP archive handling
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+# Create a MemoryStream to store the contents of the ZIP file
+$zipStream = [System.IO.File]::OpenRead($zipFilePath)
+
+# Open the ZIP file using a ZipArchive with the password
+$archive = [System.IO.Compression.ZipArchive]::new($zipStream, [System.IO.Compression.ZipArchiveMode]::Update, $false, [System.Text.Encoding]::UTF8, $password)
 
 # Get the entry corresponding to the file to be deleted
 $entryToDelete = $archive.GetEntry($fileToDelete)
@@ -18,5 +22,6 @@ if ($entryToDelete -ne $null) {
     Write-Host "File '$fileToDelete' not found in the ZIP archive."
 }
 
-# Close the archive
+# Close the archive and stream
 $archive.Dispose()
+$zipStream.Close()
