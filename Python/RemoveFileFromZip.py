@@ -1,17 +1,17 @@
-import zipfile
+import pyzipper
 import os
 
 def delete_from_zip(zip_filename, files_to_delete, password=None):
     # Create a temporary ZIP file name
     temp_zip = zip_filename + '.temp'
     
-    with zipfile.ZipFile(zip_filename, 'r') as zip_read:
+    with pyzipper.AESZipFile(zip_filename, 'r') as zip_read:
         # Check if the ZIP is password protected
         if password:
-            zip_read.setpassword(password.encode('utf-8'))
+            zip_read.pwd = password.encode('utf-8')
         
         # Open the temporary ZIP file in write mode
-        with zipfile.ZipFile(temp_zip, 'w') as zip_write:
+        with pyzipper.AESZipFile(temp_zip, 'w') as zip_write:
             # Go through each file in the original ZIP
             for item in zip_read.infolist():
                 if item.filename not in files_to_delete:
@@ -19,7 +19,7 @@ def delete_from_zip(zip_filename, files_to_delete, password=None):
                         data = file.read()
                         zip_write.writestr(item.filename, data)
                     if password:
-                        zip_write.setpassword(password.encode('utf-8'))
+                        zip_write.pwd = password.encode('utf-8')
     
     # Delete the original ZIP file
     os.remove(zip_filename)
