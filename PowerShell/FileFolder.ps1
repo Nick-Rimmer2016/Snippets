@@ -1,15 +1,23 @@
 $folderPath = "C:\TEST"
 
-# Get the list of files and folders in the folder (including subfolders)
-$itemList = Get-ChildItem -Path $folderPath -File -Recurse
+# Get the list of second-level folders in the folder
+$secondLevelFolders = Get-ChildItem -Path $folderPath -Directory | Get-ChildItem -Directory
 
-# Calculate the number of files, folders, and total size
-$fileCount = ($itemList | Where-Object { $_.PSIsContainer -eq $false }).Count
-$folderCount = ($itemList | Where-Object { $_.PSIsContainer -eq $true }).Count
-$totalSize = ($itemList | Measure-Object -Property Length -Sum).Sum / 1GB
+# Iterate through second-level folders and calculate file count and size
+$output = @()
+foreach ($folder in $secondLevelFolders) {
+    $fileList = Get-ChildItem -Path $folder.FullName -File
+    $fileCount = $fileList.Count
+    $totalSize = ($fileList | Measure-Object -Property Length -Sum).Sum / 1GB
 
-# Format the output as a table
-$output = "$folderPath".PadRight(30) + ("{0:N0} files" -f $fileCount).PadRight(20) + ("{0:N0} folders" -f $folderCount).PadRight(20) + ("{0:N2} GB" -f $totalSize)
+    $outputLine = @{
+        FolderPath = $folder.FullName
+        FileCount = $fileCount
+        TotalSize = $totalSize
+    }
 
-# Display the formatted output
-Write-Host $output
+    $output += New-Object PSObject -Property $outputLine
+}
+
+# Display the output as a table
+$output | Format-Table -AutoSize
