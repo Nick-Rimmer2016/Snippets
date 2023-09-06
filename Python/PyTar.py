@@ -9,32 +9,22 @@ def tar_files(src_folder, dest_folder, archive_name, max_size=1073741824):
     tar_path = os.path.join(dest_folder, f"{archive_name}_{tar_count}.tar")
     tar = tarfile.open(tar_path, "w")
     
-    already_added = set()
-    
-    for foldername, subfolders, filenames in os.walk(src_folder):
-        for subfolder in subfolders:
-            path = os.path.join(foldername, subfolder)
-            if path not in already_added:
-                tar.add(path, arcname=path[len(src_folder)+1:])
-                already_added.add(path)
-            
-            if get_size(tar_path) >= max_size:
-                tar.close()
-                tar_count += 1
-                tar_path = os.path.join(dest_folder, f"{archive_name}_{tar_count}.tar")
-                tar = tarfile.open(tar_path, "w")
+    to_add = []
+    for foldername, _, filenames in os.walk(src_folder):
+        to_add.extend([os.path.join(foldername, filename) for filename in filenames])
 
-        for filename in filenames:
-            path = os.path.join(foldername, filename)
-            if path not in already_added:
-                tar.add(path, arcname=path[len(src_folder)+1:])
-                already_added.add(path)
-            
-            if get_size(tar_path) >= max_size:
-                tar.close()
-                tar_count += 1
-                tar_path = os.path.join(dest_folder, f"{archive_name}_{tar_count}.tar")
-                tar = tarfile.open(tar_path, "w")
+    index = 0
+    while index < len(to_add):
+        file_path = to_add[index]
+        tar.add(file_path, arcname=file_path[len(src_folder)+1:])
+        
+        if get_size(tar_path) >= max_size:
+            tar.close()
+            tar_count += 1
+            tar_path = os.path.join(dest_folder, f"{archive_name}_{tar_count}.tar")
+            tar = tarfile.open(tar_path, "w")
+        else:
+            index += 1
 
     tar.close()
 
