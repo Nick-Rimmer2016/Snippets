@@ -1,22 +1,34 @@
 import os
 import tarfile
 
-def create_tar_archive(output_filename, files_to_add, size_limit_bytes):
-    with tarfile.open(output_filename, 'w') as tar:
-        total_size = 0
-        for file_path in files_to_add:
-            file_size = os.path.getsize(file_path)
-            if total_size + file_size > size_limit_bytes:
-                print(f"File '{file_path}' exceeds the size limit. Skipping.")
-                continue
-            tar.add(file_path)
-            total_size += file_size
+def get_size(file_path):
+    return os.path.getsize(file_path)
 
-if __name__ == "__main__":
-    archive_name = "my_archive.tar"
-    files_to_include = ["file1.txt", "file2.txt", "folder/file3.txt"]
-    size_limit_gb = 1
-    size_limit_bytes = size_limit_gb * 1024 * 1024 * 1024
-    
-    create_tar_archive(archive_name, files_to_include, size_limit_bytes)
-    print(f"Archive '{archive_name}' created successfully.")
+def tar_files(src_folder, dest_folder, max_size=1073741824):  # max_size in bytes (1GB)
+    tar_count = 1
+    tar = tarfile.open(f"{dest_folder}/archive_{tar_count}.tar", "w")
+
+    for foldername, subfolders, filenames in os.walk(src_folder):
+        for subfolder in subfolders:
+            path = os.path.join(foldername, subfolder)
+            tar.add(path, arcname=path[len(src_folder):])
+
+            if get_size(f"{dest_folder}/archive_{tar_count}.tar") > max_size:
+                tar.close()
+                tar_count += 1
+                tar = tarfile.open(f"{dest_folder}/archive_{tar_count}.tar", "w")
+
+        for filename in filenames:
+            path = os.path.join(foldername, filename)
+            tar.add(path, arcname=path[len(src_folder):])
+
+            if get_size(f"{dest_folder}/archive_{tar_count}.tar") > max_size:
+                tar.close()
+                tar_count += 1
+                tar = tarfile.open(f"{dest_folder}/archive_{tar_count}.tar", "w")
+
+    tar.close()
+
+src_folder = "path/to/source/folder"
+dest_folder = "path/to/destination/folder"
+tar_files(src_folder, dest_folder)
