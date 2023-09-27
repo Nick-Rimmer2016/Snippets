@@ -1,50 +1,69 @@
 # Import the ImportExcel module
 Import-Module ImportExcel
 
-# Prompt user for the start and end years
-$startYear = Read-Host "Enter the start year for which you want to generate index filenames"
-$endYear = Read-Host "Enter the end year for which you want to generate index filenames"
+function Generate-IndexFilenames {
+    param (
+        [int]$StartYear,
+        [int]$EndYear
+    )
 
-# Initialize an empty array to hold the filenames
-$indexFiles = @()
+    # Initialize an empty array to hold the filenames
+    $indexFiles = @()
 
-# Loop through each year and each two-week period of each year
-for ($year = $startYear; $year -le $endYear; $year++) {
-    for ($month = 1; $month -le 12; $month++) {
-        # Get the number of days in the current month
-        $daysInMonth = [DateTime]::DaysInMonth($year, $month)
+    # Loop through each year and each two-week period of each year
+    for ($year = $StartYear; $year -le $EndYear; $year++) {
+        $currentDate = Get-Date -Year $year -Month 1 -Day 1
+        $endOfYear = Get-Date -Year $year -Month 12 -Day 31
         
-        # Initialize start day
-        $startDay = 1
-        
-        while ($startDay -le $daysInMonth) {
-            # Calculate end day
-            $endDay = $startDay + 13
-            if ($endDay -gt $daysInMonth) {
-                $endDay = $daysInMonth
-            }
+        while ($currentDate -le $endOfYear) {
+            # Calculate end date
+            $endDate = $currentDate.AddDays(13)
             
             # Generate filename
-            $startDate = Get-Date -Year $year -Month $month -Day $startDay -Hour 0 -Minute 0 -Second 0
-            $endDate = Get-Date -Year $year -Month $month -Day $endDay -Hour 0 -Minute 0 -Second 0
-            $filename = "Index_$($startDate.ToString('dd_MM_yyyy'))-$($endDate.ToString('dd_MM_yyyy')).txt"
+            $filename = "index_$($currentDate.ToString('dd_MM_yyyy'))-$($endDate.ToString('dd_MM_yyyy')).txt"
+
             
             # Add filename to array
+            # Add filename to array
+            $archiveName = ($filename -replace 'Index', 'Archive' -replace '.txt', '.gz').ToLower()
             $indexFiles += [PSCustomObject]@{
-                'Year' = $year
-                'Filename' = $filename
-                'StartDate' = $startDate.ToString('dd_MM_yyyy')
-                'EndDate' = $endDate.ToString('dd_MM_yyyy')
+                'Year'        = $year
+                'Filename'    = $filename
+                'StartDate'   = $currentDate.ToString('dd_MM_yyyy')
+                'EndDate'     = $endDate.ToString('dd_MM_yyyy')
+                'ArchiveName' = $archiveName
+                'Date Sent'   = $datesent
             }
+
+
             
-            # Update start day for next iteration
-            $startDay = $endDay + 1
+            # Update current date for next iteration
+            $currentDate = $endDate.AddDays(1)
         }
     }
+
+    # Output generated filenames to Excel
+    $excelPath = "Index_Filenames_${StartYear}_to_${EndYear}.xlsx"
+    $excelPackage = $indexFiles | Export-Excel -Path $excelPath -WorksheetName "IndexFiles" -AutoSize -BoldTopRow -PassThru
+
+    # Remove gridlines
+    $ws = $excelPackage.Workbook.Worksheets["IndexFiles"]
+    $ws.View.ShowGridLines = $false
+
+    # Align "Year" column to the left
+    $yearColumn = $ws.Column(1)
+    $yearColumn.Style.HorizontalAlignment = [OfficeOpenXml.Style.ExcelHorizontalAlignment]::Left
+
+    # Set the top row's background color to orange
+    $ws.Row(1).Style.Fill.PatternType = [OfficeOpenXml.Style.ExcelFillStyle]::Solid
+    $ws.Row(1).Style.Fill.BackgroundColor.SetColor([System.Drawing.Color]::Orange)
+
+    # Save and dispose of the Excel package
+    $excelPackage.Save()
+    $excelPackage.Dispose()
+
+    Write-Host "Generated index filenames for the years $StartYear to $EndYear have been saved to $excelPath"
+
+
+
 }
-
-# Output generated filenames to Excel
-$excelPath = "Index_Filenames_${startYear}_to_${endYear}.xlsx"
-$indexFiles | Export-Excel -Path $excelPath -WorksheetName "IndexFiles"
-
-Write-Host "Generated index filenames for the years $startYear to $endYear have been saved to $excelPath"
