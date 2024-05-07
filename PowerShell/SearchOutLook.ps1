@@ -4,7 +4,7 @@ $outlook = New-Object -comobject Outlook.Application
 # Get the Namespace and Logon
 $namespace = $outlook.GetNameSpace("MAPI")
 
-# Function to search emails recursively in all subfolders
+# Function to search emails in the specified folder and its subfolders
 function Search-Emails {
     param (
         [Microsoft.Office.Interop.Outlook.MAPIFolder]$Folder,
@@ -17,7 +17,7 @@ function Search-Emails {
             if ($item.Body -like "*$SearchString*" -or $item.Subject -like "*$SearchString*") {
                 Write-Output "Subject: $($item.Subject)"
                 Write-Output "Received: $($item.ReceivedTime)"
-                Write-Output "Body Preview: $($item.Body.Substring(0, [System.Math]::Min($item.Body.Length, 300)))"  # Display first 300 characters of the body
+                Write-Output "Body Preview: $($item.Body.Substring(0, [System.Math]::Min($item.Body.Length, 300)))"
                 Write-Output "Folder: $($Folder.FolderPath)"
                 Write-Output "--------------------------------------------------------"
             }
@@ -30,11 +30,39 @@ function Search-Emails {
     }
 }
 
-# Get the Inbox folder; assuming default store
-$inbox = $namespace.GetDefaultFolder([Microsoft.Office.Interop.Outlook.OlDefaultFolders]::olFolderInbox)
+# Function to find a folder by name starting from any folder
+function Find-Folder {
+    param (
+        [Microsoft.Office.Interop.Outlook.MAPIFolder]$RootFolder,
+        [string]$FolderName
+    )
 
-# Define your search keyword
-$searchString = "YourSearchString"
+    # Check if the current folder is the one we're looking for
+    if ($RootFolder.Name -eq $FolderName) {
+        return $RootFolder
+    }
 
-# Start the recursive search
-Search-Emails -Folder $inbox -SearchString $searchString
+    # Otherwise, search in each subfolder
+    foreach ($subFolder in $RootFolder.Folders) {
+        $found = Find-Folder -RootFolder $subFolder -FolderName $FolderName
+        if ($found) {
+            return $found
+        }
+    }
+
+    return $null
+}
+
+# Prompt user for the folder name and search keyword
+$folderName = Read-Host "Enter the folder name you want to search"
+$searchString = Read-Host "Enter the search string"
+
+# Start the search from the top-level (root) folder of the mailbox
+$rootFolder = $namespace.Folders.Item(1)  # Assuming the first folder is the primary mailbox
+$targetFolder = Find-Folder -RootFolder $rootFolder -FolderName $folderName
+
+if ($targetFolder) {
+    Search-Emails -Folder $targetFolder -SearchString $searchString
+} else {
+    Write-Output "Folder '$folderName' not found."
+}
