@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collapsible Sections</title>
+    <style>
+        /* CSS to hide the content initially */
+        .collapsible-content {
+            display: none;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        /* Optional: styling for the h2 tag to indicate it is clickable */
+        h2 {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Computer Specs 1</h2>
+<div class="collapsible-content">
+    <p>Details about computer specs 1...</p>
+</div>
+
+<h2>Computer Specs 2</h2>
+<div class="collapsible-content">
+    <p>Details about computer specs 2...</p>
+</div>
+
+<h2>Computer Specs 3</h2>
+<div class="collapsible-content">
+    <p>Details about computer specs 3...</p>
+</div>
+
+<script>
+    // JavaScript to toggle the display of the content
+    document.querySelectorAll('h2').forEach(header => {
+        header.addEventListener('click', () => {
+            const content = header.nextElementSibling;
+            if (content.style.display === "none" || content.style.display === "") {
+                content.style.display = "block";
+            } else {
+                content.style.display = "none";
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
