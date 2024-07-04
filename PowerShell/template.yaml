@@ -1,0 +1,42 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  secretVariable: $(mySecret)
+
+jobs:
+- job: compile
+  displayName: 'Compile Job'
+  steps:
+  - task: PowerShell@2
+    inputs:
+      targetType: 'filePath'
+      filePath: 'scripts/compile.ps1'
+      arguments: '-secret $(secretVariable)'
+    env:
+      MY_SECRET: $(mySecret)
+  
+- job: build
+  displayName: 'Build Job'
+  steps:
+  - task: PowerShell@2
+    inputs:
+      targetType: 'filePath'
+      filePath: 'scripts/build.ps1'
+      arguments: '-secret $(secretVariable)'
+    env:
+      MY_SECRET: $(mySecret)
+  
+- job: test
+  displayName: 'Test Job'
+  steps:
+  - task: PowerShell@2
+    inputs:
+      targetType: 'filePath'
+      filePath: 'scripts/test.ps1'
+      arguments: '-secret $(secretVariable)'
+    env:
+      MY_SECRET: $(mySecret)
