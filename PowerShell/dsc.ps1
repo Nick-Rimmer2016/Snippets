@@ -6,28 +6,30 @@ $results = @()
 
 # Loop through each server and get the DSC Configuration status
 foreach ($server in $servers) {
-    $status = Invoke-Command -ComputerName $server -ScriptBlock { Test-DscConfiguration } -ErrorAction SilentlyContinue
+    $status = Invoke-Command -ComputerName $server -ScriptBlock { Test-DscConfiguration -Detailed } -ErrorAction SilentlyContinue
     if ($status) {
+        $inDesiredState = $status.ResourcesInDesiredState -join ", "
+        $notInDesiredState = $status.ResourcesNotInDesiredState -join ", "
         $results += [pscustomobject]@{
             Server = $server
-            Status = $status.Status
-            InDesiredState = $status.InDesiredState
-            ResourcesNotInDesiredState = $status.ResourcesNotInDesiredState
+            Status = if ($status.InDesiredState) { "In Desired State" } else { "Not in Desired State" }
+            ResourcesInDesiredState = $inDesiredState
+            ResourcesNotInDesiredState = $notInDesiredState
         }
     } else {
         $results += [pscustomobject]@{
             Server = $server
             Status = "Unavailable"
-            InDesiredState = $null
-            ResourcesNotInDesiredState = $null
+            ResourcesInDesiredState = "N/A"
+            ResourcesNotInDesiredState = "N/A"
         }
     }
 }
 
 # Convert the results to HTML
-$htmlContent = $results | ConvertTo-Html -Property Server, Status, InDesiredState, ResourcesNotInDesiredState -Title "DSC Configuration Status for Multiple Servers" -PreContent "<h1>DSC Configuration Report</h1>"
+$htmlContent = $results | ConvertTo-Html -Property Server, Status, ResourcesInDesiredState, ResourcesNotInDesiredState -Title "DSC Configuration Status for Multiple Servers" -PreContent "<h1>DSC Configuration Report</h1>"
 
-# Add some CSS styling for better presentation
+# Add colorful CSS styling
 $css = @"
 <style>
     body {
@@ -37,15 +39,29 @@ $css = @"
         border-collapse: collapse;
         width: 100%;
     }
-    table, th, td {
-        border: 1px solid black;
+    th {
+        background-color: #4CAF50;
+        color: white;
     }
     th, td {
+        border: 1px solid black;
         padding: 8px;
         text-align: left;
     }
-    th {
+    td {
         background-color: #f2f2f2;
+    }
+    .status-desired {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    .status-not-desired {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    .status-unavailable {
+        background-color: #ffeeba;
+        color: #856404;
     }
     h1 {
         text-align: center;
