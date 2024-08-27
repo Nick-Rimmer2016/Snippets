@@ -1,0 +1,63 @@
+---
+- name: Deploy rsyslog with TLS configuration
+  hosts: all
+  become: yes
+
+  vars:
+    cert_content: |
+      -----BEGIN CERTIFICATE-----
+      MIIDqzCCApOgAwIBAgIUE6ZK5zF6cHb1fFw0Z5LdQyG8XDswDQYJKoZIhvcNAQEL
+      ...
+      -----END CERTIFICATE-----
+    cert_path: /etc/ssl/certs/ca-cert.pem
+
+  tasks:
+    
+    - name: Install rsyslog and openssl
+      apt:
+        name: 
+          - rsyslog
+          - openssl
+        state: present
+        update_cache: yes
+    
+    - name: Ensure the /etc/ssl/certs directory exists
+      file:
+        path: /etc/ssl/certs
+        state: directory
+        mode: '0755'
+
+    - name: Copy the CA certificate to the server
+      copy:
+        content: "{{ cert_content }}"
+        dest: "{{ cert_path }}"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Configure rsyslog for TLS
+      blockinfile:
+        path: /etc/rsyslog.d/01-secure-syslog.conf
+        create: yes
+        block: |
+          # Load TCP and TLS modules
+          module(load="imtcp")
+          module(load="gtls")  # TLS support
+
+          # Specify the location of the certificate and key files
+          global(
+            defaultNetstreamDriver="gtls"
+            defaultNetstreamDriverCAFile="{{ cert_path }}"
+          )
+
+          # Enable the server to receive logs
+          input(type="imtcp" port="6514" tls="on")
+
+          # Define rules for logging
+          *.* /var/log/secure-syslog.log
+
+    - name: Restart rsyslog to apply changes
+      service:
+        name: rsyslog
+        state: restarted
+        enabled: yes
