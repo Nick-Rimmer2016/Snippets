@@ -1,40 +1,26 @@
-function Join-Object {
-    param (
-        [Parameter(Mandatory = $true)] [array]$Left,
-        [Parameter(Mandatory = $true)] [array]$Right,
-        [Parameter(Mandatory = $true)] [string]$LeftJoinField,
-        [Parameter(Mandatory = $true)] [string]$RightJoinField,
-        [Parameter()] [string]$JoinType = "Inner" # Options: Inner, Left, Right, Full
-    )
+# Create an array to store combined results
+$combinedResults = @()
 
-    $joinedArray = @()
+foreach ($item1 in $csv1) {
+    # Find matching item in the second CSV based on accounts and account_id
+    $matchingItem = $csv2 | Where-Object { $_.account_id -eq $item1.accounts }
 
-    foreach ($leftItem in $Left) {
-        $matched = $false
-        foreach ($rightItem in $Right) {
-            if ($leftItem.$LeftJoinField -eq $rightItem.$RightJoinField) {
-                # Combine fields from both CSVs
-                $combinedObject = [PSCustomObject]@{
-                    # Include all fields from the left item
-                    PSObject.Properties.AddRange($leftItem.PSObject.Properties)
-                }
+    # If there's a match, combine the fields from both items
+    if ($matchingItem) {
+        # Create a new object with fields from both CSVs
+        $combinedObject = New-Object PSObject -Property ($item1 | Select-Object *).PSObject.Properties
 
-                # Include all fields from the right item, avoiding duplicates
-                foreach ($property in $rightItem.PSObject.Properties) {
-                    if (-not $combinedObject.PSObject.Properties.Match($property.Name)) {
-                        $combinedObject | Add-Member -MemberType NoteProperty -Name $property.Name -Value $property.Value
-                    }
-                }
-
-                $joinedArray += $combinedObject
-                $matched = $true
+        # Add fields from the matching item in csv2
+        foreach ($property in $matchingItem.PSObject.Properties) {
+            if (-not $combinedObject.PSObject.Properties.Match($property.Name)) {
+                $combinedObject | Add-Member -MemberType NoteProperty -Name $property.Name -Value $property.Value
             }
         }
 
-        if ($JoinType -eq "Left" -and -not $matched) {
-            $joinedArray += $leftItem
-        }
+        # Add combined object to results
+        $combinedResults += $combinedObject
     }
-
-    return $joinedArray
 }
+
+# Display the combined results
+$combinedResults | Format-Table -AutoSize
